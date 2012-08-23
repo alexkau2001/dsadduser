@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+body {
+	padding-top: 80px; /* 60px to make the container go below the topbar */
+}
+
+.sidebar {
+	background-color: #eee;
+}
