@@ -1,6 +1,3 @@
-<?php 
-include_once 'config.php';
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +25,6 @@ include_once 'config.php';
 				<span class="icon-bar"></span>
 			</a>
 			<a class="brand" href="index.php">DSAdd Users</a>
-
 		</div>
 	</div>
 </div>
@@ -44,8 +40,13 @@ include_once 'config.php';
 		</div>
 		<div class="span9">
 			<!-- Body content -->
-			Hello!!
-			
+			<h1>About</h1>
+			<hr>
+			<dl>
+				<dt>dsadd</dt>
+				<dd>Dsadd is a command-line tool that is built into Windows Server 2008. It is available if you have the Active Directory Domain Services (AD DS) server role installed. To use dsadd, you must run the dsadd command from an elevated command prompt. To open an elevated command prompt, click Start, right-click Command Prompt, and then click Run as administrator.</dd>
+			</dl>
+			<p>Resource: <a href="http://technet.microsoft.com/en-us/library/cc731279(v=ws.10).aspx">http://technet.microsoft.com/en-us/library/cc731279(v=ws.10).aspx</a></p>
 		</div>
 	</div>
 </div>

@@ -1,5 +1,7 @@
 <?php 
-include_once 'config.php';
+if(sizeof($_POST) != 0){
+	var_dump($_POST);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +30,6 @@ include_once 'config.php';
 				<span class="icon-bar"></span>
 			</a>
 			<a class="brand" href="index.php">DSAdd Users</a>
-
 		</div>
 	</div>
 </div>
@@ -44,8 +45,35 @@ include_once 'config.php';
 		</div>
 		<div class="span9">
 			<!-- Body content -->
-			Hello!!
-			
+			<form action="dsadd.php" method="post">
+				<div class="control-group">
+					<label class="control-label" for="inputFirstName">First Name</label>
+					<div class="controls">
+						<input type="text" id="inputFirstName" name="inputFirstName" placeholder="John">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="inputLastName">Last Name</label>
+					<div class="controls">
+						<input type="text" id="inputLastName" name="inputLastName" placeholder="Smith">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="inputUsername">Username</label>
+					<div class="controls">
+						<input type="text" id="inputUsername" name="inputUsername" placeholder="jsmith">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="inputPassword">Password</label>
+					<div class="controls">
+						<input type="text" id="inputPassword" name="inputPassword" placeholder="YourPasswordHere">
+					</div>
+				</div>
+				<div class="control-group">
+					<button type="submit" class="btn" name="submit">Submit</button>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
