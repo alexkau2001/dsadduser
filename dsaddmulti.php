@@ -1,72 +1,64 @@
 <?php 
 include_once 'config.php';
-
+session_start();
 if(sizeof($_POST) != 0){
+	
+	$arrAD = ACTIVE_DIRECTORY::$default;
+	$arrFS = FILE_SHARES::$default;
 	
 	if(is_uploaded_file($_FILES['file']['tmp_name'])){
 		$fileData = file_get_contents($_FILES['file']['tmp_name']);
 		$arrFile = preg_split("/\n/", $fileData);
+		var_dump($arrFile);
+		
 		$userData = array_slice($arrFile,1);
+		$newUser = "";
+		$shareDir = "";
 		foreach($userData as $userInfo){
-			list($grad,$user,$fname,$lname,$email) = explode(",",$userInfo);
+			if($userInfo != ""){
+				list($lastName,$firstName,$username,$password) = explode(",",$userInfo);
+				$fullName = $firstName . " " . $lastName;
+				if($password === ""){
+					$password = ACTIVE_DIRECTORY::$default['password'];
+				} 
+				// Login Script
+				$newUser .= "dsadd user \"CN=".$username.",".$arrAD['ou']."\" -samid ". $username;
+				$newUser .= " -pwd ".$password;
+				$newUser .= " -upn ".$username . $arrAD['upn'];
+				$newUser .= " -display \"".$fullName."\"";
+				$newUser .= " -desc \"".$fullName."\"";
+				$newUser .= " -mustchpwd ".$arrAD['mustchpwd']. " -canchpwd " . $arrAD['canchpwd']. " -pwdneverexpires ".$arrAD['pwdneverexpires'];
+			
+				if(array_key_exists('memberof',$arrAD)){
+					$newUser .= " -memberof \"".$arrAD['memberof']."\"";
+				}
+			
+				$newUser .= " -hmdir ".$arrAD['hmdir'] . $username."$";
+				$newUser .= " -hmdrv ".$arrAD['hmdrv'];
+				$newUser .= " -loscr ".$arrAD['loscr']."\r\n";
+				
+				// File Share info
+				$shareDir .= "if not exist ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username . " mkdir ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ."\r\n";
+				$shareDir .= "calcs ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /e /g ".$username.":F\r\n";
+				$shareDir .= "net share ".$username."$=".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /GRANT:".$username.",FULL /UNLIMITED /REMARK:\"".$fullName."\"\r\n";
+			}
 		}
 	}
-	
-// 	$arrAD = ACTIVE_DIRECTORY::$default;
-// 	$arrFS = FILE_SHARES::$default;
-// 	if($_POST['inputPassword'] != ""){
-// 		$password = $_POST['inputPassword'];
-// 	} else {
-// 		$password = ACTIVE_DIRECTORY::$default['password'];
-// 	}
-	
-// 	// Login Script
-// 	$newUser  = "dsadd user \"CN=".$username.",".$arrAD['ou']."\" -samid ". $username;
-// 	$newUser .= " -pwd ".$password;
-// 	$newUser .= " -upn ".$username . $arrAD['upn'];
-// 	$newUser .= " -display \"".$fullName."\"";
-// 	$newUser .= " -desc \"".$fullName."\"";
-// 	$newUser .= " -mustchpwd ".$arrAD['mustchpwd']. " -canchpwd " . $arrAD['canchpwd']. " -pwdneverexpires ".$arrAD['pwdneverexpires'];
-	
-// 	if(array_key_exists('memberof',$arrAD)){
-// 		$newUser .= " -memberof \"".$arrAD['memberof']."\"";
-// 	}
-	
-// 	$newUser .= " -hmdir ".$arrAD['hmdir'] . $username."$";
-// 	$newUser .= " -hmdrv ".$arrAD['hmdrv'];
-// 	$newUser .= " -loscr ".$arrAD['loscr']."\r\n"; 
-	
-// 	// File Share info
-// 	$shareDir  = "if not exist ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username . " mkdir ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ."\r\n";
-// 	$shareDir .= "calcs ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /e /g ".$username.":F\r\n";
-// 	$shareDir .= "net share ".$username."$=".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /GRANT:".$username.",FULL /UNLIMITED /REMARK:\"".$fullName."\"\r\n";
-	
-// 	header('Content-type: text/bat');
-// 	header('Content-Disposition: attachment;filename=createUser.bat');
-// 	$fp = fopen('php://output','w');
-// 	fwrite($fp, $newUser);
-// 	fclose($fp);
-	
-// 	header('Content-type: text/bat');
-// 	header('Content-Disposition: attachment;filename=createShare.bat');
-// 	$ff = fopen('php://output','w');
-// 	fwrite($ff, $shareDir);
-// 	fclose($ff);
 
-// 	$file = tempnam("tmp", "zip");
-// 	$zip = new ZipArchive();
-// 	$zip->open($file, ZipArchive::OVERWRITE);
+	$file = tempnam("tmp", "zip");
+	$zip = new ZipArchive();
+	$zip->open($file, ZipArchive::OVERWRITE);
 	
-// 	$zip->addFromString("createUser.bat", $newUser);
-// 	$zip->addFromString('createShare.bat', $shareDir);
+	$zip->addFromString("createUser.bat", $newUser);
+	$zip->addFromString('createShare.bat', $shareDir);
 	
-// 	$zip->close();
+	$zip->close();
 	
-// 	header('Content-Type: application/zip');
-// 	header('Content-Length: '.filesize($file));
-// 	header('Content-Disposition: attachement; filename="create.zip"');
-// 	readfile($file);
-// 	unlink($file);
+	header('Content-Type: application/zip');
+	header('Content-Length: '.filesize($file));
+	header('Content-Disposition: attachement; filename="create.zip"');
+	readfile($file);
+	unlink($file);
 } else {
 ?>
 <!DOCTYPE html>
