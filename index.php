@@ -1,6 +1,3 @@
-<?php 
-include_once 'config.php';
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,6 +37,7 @@ include_once 'config.php';
 				<li><a href="about.php">About</a></li>
 				<li><a href="#">Help</a></li>
 				<li><a href="dsadd.php">DSAdd</a></li>
+				<li><a href="dsaddmulti.php">DSAdd Multiple</a></li>
 			</ul>
 		</div>
 		<div class="span9">

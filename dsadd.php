@@ -1,7 +1,68 @@
 <?php 
+include_once 'config.php';
+
 if(sizeof($_POST) != 0){
-	var_dump($_POST);
-}
+	$username = $_POST['inputUsername'];
+	$firstName = $_POST['inputFirstName'];
+	$lastName = $_POST['inputLastName'];
+	
+	$fullName = $firstName . " " .$lastName;
+	$arrAD = ACTIVE_DIRECTORY::$default;
+	$arrFS = FILE_SHARES::$default;
+	if($_POST['inputPassword'] != ""){
+		$password = $_POST['inputPassword'];
+	} else {
+		$password = ACTIVE_DIRECTORY::$default['password'];
+	}
+	
+	// Login Script
+	$newUser  = "dsadd user \"CN=".$username.",".$arrAD['ou']."\" -samid ". $username;
+	$newUser .= " -pwd ".$password;
+	$newUser .= " -upn ".$username . $arrAD['upn'];
+	$newUser .= " -display \"".$fullName."\"";
+	$newUser .= " -desc \"".$fullName."\"";
+	$newUser .= " -mustchpwd ".$arrAD['mustchpwd']. " -canchpwd " . $arrAD['canchpwd']. " -pwdneverexpires ".$arrAD['pwdneverexpires'];
+	
+	if(array_key_exists('memberof',$arrAD)){
+		$newUser .= " -memberof \"".$arrAD['memberof']."\"";
+	}
+	
+	$newUser .= " -hmdir ".$arrAD['hmdir'] . $username."$";
+	$newUser .= " -hmdrv ".$arrAD['hmdrv'];
+	$newUser .= " -loscr ".$arrAD['loscr']."\r\n"; 
+	
+	// File Share info
+	$shareDir  = "if not exist ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username . " mkdir ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ."\r\n";
+	$shareDir .= "calcs ".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /e /g ".$username.":F\r\n";
+	$shareDir .= "net share ".$username."$=".$arrFS['dataDrive'].$arrFS['homePath']."\\".$username ." /GRANT:".$username.",FULL /UNLIMITED /REMARK:\"".$fullName."\"\r\n";
+	
+// 	header('Content-type: text/bat');
+// 	header('Content-Disposition: attachment;filename=createUser.bat');
+// 	$fp = fopen('php://output','w');
+// 	fwrite($fp, $newUser);
+// 	fclose($fp);
+	
+// 	header('Content-type: text/bat');
+// 	header('Content-Disposition: attachment;filename=createShare.bat');
+// 	$ff = fopen('php://output','w');
+// 	fwrite($ff, $shareDir);
+// 	fclose($ff);
+
+	$file = tempnam("tmp", "zip");
+	$zip = new ZipArchive();
+	$zip->open($file, ZipArchive::OVERWRITE);
+	
+	$zip->addFromString("createUser.bat", $newUser);
+	$zip->addFromString('createShare.bat', $shareDir);
+	
+	$zip->close();
+	
+	header('Content-Type: application/zip');
+	header('Content-Length: '.filesize($file));
+	header('Content-Disposition: attachement; filename="create.zip"');
+	readfile($file);
+	unlink($file);
+} else {
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,6 +102,7 @@ if(sizeof($_POST) != 0){
 				<li><a href="about.php">About</a></li>
 				<li><a href="#">Help</a></li>
 				<li><a href="dsadd.php">DSAdd</a></li>
+				<li><a href="dsaddmulti.php">DSAdd Multiple</a></li>
 			</ul>
 		</div>
 		<div class="span9">
@@ -81,3 +143,6 @@ if(sizeof($_POST) != 0){
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php 
+}
+?>

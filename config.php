@@ -16,9 +16,11 @@
  * @link          http://github.com/marcusmyers/dsadduser
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
+
 /**
  * Active Directory configuration class.
  *
+ * @staticvar $default holds all the configuration info
  */
 
 class ACTIVE_DIRECTORY {
@@ -49,7 +51,24 @@ class ACTIVE_DIRECTORY {
 			//'memberof'=>'CN=office,OU=CompanyUsers,DC=example,DC=local',  
 	
 			// Use this if you want all users to have a default password that they change on first login
-			//'password'=>'school', 
+			// On By Default
+			'password'=>'school', 
+			);
+	
+}
+
+/*
+ * File Shares configuration class
+ * 
+ * @staticvar $default holds all the configuration info
+ */
+class FILE_SHARES {
+	
+	public static $default = array(
+			// Drive letter where you will be storing file shares
+			'dataDrive'=>'D:',
+			// Folder where you will be storing users folders
+			'homePath'=>'\users',
 			);
 	
 }
